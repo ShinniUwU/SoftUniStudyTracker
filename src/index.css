@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
+
+:root {
+  font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  color: #0f172a;
+  background-color: #f1f5fb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --primary-600: #2e82e8;
+  --primary-700: #1f62c4;
+  --primary-800: #1a4fa6;
+  --primary-900: #153b7d;
+  --muted: #6b7280;
+  --border: #e4e8f1;
+  --border-strong: #d7dce7;
+  --text: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(46, 130, 232, 0.14), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(26, 80, 196, 0.12), transparent 22%),
+    #f3f7ff;
+  min-height: 100vh;
+}
+
+#root {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+}
+
+a {
+  color: var(--primary-700);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}

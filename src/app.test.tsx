@@ -1,22 +1,44 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { vi } from 'vitest'
 import App from './App'
 import { AuthProvider } from './context/AuthContext'
 import { StudyProvider } from './context/StudyContext'
+import { ThemeProvider } from './context/ThemeContext'
+import { ResourcesProvider } from './context/ResourcesContext'
+import { CourseProvider } from './context/CourseContext'
 
 const renderApp = (initialEntries: string[] = ['/login']) =>
   render(
     <MemoryRouter initialEntries={initialEntries}>
-      <AuthProvider>
-        <StudyProvider>
-          <App />
-        </StudyProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <CourseProvider>
+            <StudyProvider>
+              <ResourcesProvider>
+                <App />
+              </ResourcesProvider>
+            </StudyProvider>
+          </CourseProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </MemoryRouter>,
   )
 
-describe('ReactJS Study Tracker', () => {
+describe('SoftUni Study Tracker', () => {
   beforeEach(() => {
+    vi.restoreAllMocks()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() =>
+        Promise.resolve(
+          new Response(JSON.stringify([]), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+        ),
+      ),
+    )
     localStorage.clear()
   })
 
@@ -31,7 +53,7 @@ describe('ReactJS Study Tracker', () => {
     })
     fireEvent.click(screen.getByRole('button', { name: /login/i }))
 
-    expect(await screen.findByText(/ReactJS Study Tracker/i)).toBeInTheDocument()
+    expect(await screen.findByText(/SoftUni Study Tracker/i)).toBeInTheDocument()
   })
 
   it('toggles checklist item and adds a new task on exam prep page', async () => {

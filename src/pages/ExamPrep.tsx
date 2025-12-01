@@ -23,6 +23,9 @@ export const ExamPrep = () => {
 
   const completed = checklist.filter((item) => item.done).length
   const percent = checklist.length === 0 ? 0 : Math.round((completed / checklist.length) * 100)
+  const examMessage = countdown.past
+    ? 'Exam time. Set a new date to keep tracking.'
+    : 'Stay steady — focus on weak spots.'
 
   const datetimeLocalValue = useMemo(() => {
     const date = new Date(examDate)
@@ -54,7 +57,7 @@ export const ExamPrep = () => {
     <div className="page">
       <div className="page-header">
         <div>
-          <p className="eyebrow">Exam prep</p>
+          <p className="eyebrow">Course exam preparation</p>
           <h2>Countdown & readiness</h2>
           <p className="muted">
             Keep the final exam date visible and ship small, consistent prep tasks.
@@ -76,19 +79,19 @@ export const ExamPrep = () => {
               <p className="muted tiny">minutes</p>
             </div>
           </div>
-          {countdown.past ? (
-            <p className="error tiny">Exam time. You got this.</p>
-          ) : (
-            <p className="muted tiny">Stay steady — focus on weak spots.</p>
-          )}
-          <label className="muted tiny">
-            Update exam date
+          <p className={countdown.past ? 'error tiny' : 'muted tiny'}>{examMessage}</p>
+          <div className="field-group">
+            <label className="muted tiny" htmlFor="exam-date-input">
+              Update exam date
+            </label>
             <input
+              id="exam-date-input"
               type="datetime-local"
               value={datetimeLocalValue}
               onChange={(e) => handleDateChange(e.target.value)}
             />
-          </label>
+            <p className="muted tiny countdown-meta">Local timezone · Keeps your countdown in sync.</p>
+          </div>
         </div>
       </div>
 

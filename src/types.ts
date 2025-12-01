@@ -10,6 +10,7 @@ export interface Topic {
   id: string
   title: string
   description: string
+  exerciseCount: number
   note: string
   exercises: Exercise[]
 }

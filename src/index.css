@@ -4,8 +4,9 @@
   font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
   line-height: 1.6;
   font-weight: 400;
-  color: #0f172a;
-  background-color: #f1f5fb;
+  color: var(--text);
+  background-color: var(--bg);
+  color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -15,10 +16,80 @@
   --primary-700: #1f62c4;
   --primary-800: #1a4fa6;
   --primary-900: #153b7d;
+
+  --text: #e7edff;
+  --muted: #9aa6c3;
+  --border: #1f2d44;
+  --border-strong: #29405f;
+  --bg: #0b1220;
+  --surface: #0f172a;
+  --surface-2: #111f36;
+  --surface-3: #132542;
+  --input-bg: #0f1c2f;
+  --page-gradient: radial-gradient(circle at 20% 20%, rgba(64, 117, 196, 0.16), transparent 24%),
+    radial-gradient(circle at 80% 0%, rgba(33, 78, 160, 0.14), transparent 22%),
+    #0b1220;
+  --header-from: #1b3474;
+  --header-to: #0f1e46;
+  --header-text: #e7edff;
+  --nav-link: #d6e4ff;
+  --nav-link-active-bg: rgba(255, 255, 255, 0.12);
+  --nav-link-active: #ffffff;
+  --brand-mark-bg: rgba(255, 255, 255, 0.1);
+  --brand-mark-bg-soft: rgba(255, 255, 255, 0.06);
+  --badge-bg: rgba(255, 255, 255, 0.08);
+  --ghost-bg: rgba(255, 255, 255, 0.12);
+  --ghost-border: rgba(255, 255, 255, 0.24);
+  --ghost-text: #e7edff;
+  --card-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.28);
+  --progress-track: #16233a;
+  --chip-bg: rgba(46, 130, 232, 0.18);
+  --link: #93c5fd;
+
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --text: #0f172a;
   --muted: #6b7280;
   --border: #e4e8f1;
   --border-strong: #d7dce7;
-  --text: #0f172a;
+  --bg: #f1f5fb;
+  --surface: #ffffff;
+  --surface-2: #f7f9fd;
+  --surface-3: #f5f8ff;
+  --input-bg: #f7f9fc;
+  --page-gradient: radial-gradient(circle at 20% 20%, rgba(46, 130, 232, 0.14), transparent 25%),
+    radial-gradient(circle at 80% 0%, rgba(26, 80, 196, 0.12), transparent 22%),
+    #f3f7ff;
+  --header-from: rgba(46, 130, 232, 0.92);
+  --header-to: rgba(20, 60, 150, 0.9);
+  --header-text: #ffffff;
+  --nav-link: #e8f1ff;
+  --nav-link-active-bg: rgba(255, 255, 255, 0.14);
+  --nav-link-active: #ffffff;
+  --brand-mark-bg: #ffffff;
+  --brand-mark-bg-soft: rgba(255, 255, 255, 0.7);
+  --badge-bg: rgba(255, 255, 255, 0.12);
+  --ghost-bg: rgba(255, 255, 255, 0.2);
+  --ghost-border: rgba(255, 255, 255, 0.3);
+  --ghost-text: #ffffff;
+  --card-shadow: 0 18px 60px rgba(10, 41, 95, 0.12);
+  --shadow-soft: 0 12px 40px rgba(18, 43, 82, 0.12);
+  --progress-track: #e6ecf7;
+  --chip-bg: rgba(46, 130, 232, 0.1);
+  --link: var(--primary-700);
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
 }
 
 * {
@@ -27,20 +98,19 @@
 
 body {
   margin: 0;
-  background: radial-gradient(circle at 20% 20%, rgba(46, 130, 232, 0.14), transparent 25%),
-    radial-gradient(circle at 80% 0%, rgba(26, 80, 196, 0.12), transparent 22%),
-    #f3f7ff;
+  background: var(--page-gradient);
   min-height: 100vh;
+  color: var(--text);
 }
 
 #root {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 1.5rem 1rem 2rem;
+  padding: 1.25rem 1rem 2rem;
 }
 
 a {
-  color: var(--primary-700);
+  color: var(--link);
 }
 
 button,

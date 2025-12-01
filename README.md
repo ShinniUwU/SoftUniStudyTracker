@@ -1,6 +1,6 @@
-# ReactJS Study Tracker
+# SoftUni Study Tracker
 
-Small app for tracking my progress through the **SoftUni ReactJS – October 2025** course.
+Configurable tracker for any SoftUni course (currently set to ReactJS – October 2025 via `src/config/course.ts`).
 
 ## Features
 
@@ -12,14 +12,15 @@ Small app for tracking my progress through the **SoftUni ReactJS – October 202
   - list of exercises with status: _Not started / In progress / Done_
   - personal notes per topic
 - Exam prep page:
-  - exam date countdown
+  - exam date countdown (default from course config)
   - checklist of prep tasks
+- Resources catalog with public view and owner-only CRUD
 - SoftUni-inspired layout (header, footer, responsive cards)
 
 ## Tech stack
 
 - React + React Router
-- Context + hooks for state
+- Context + hooks for state (auth, study, resources, theme)
 - Vitest + React Testing Library
 - Bun as the runtime/package manager
 

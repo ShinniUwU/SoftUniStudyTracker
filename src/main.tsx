@@ -5,15 +5,24 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthContext'
 import { StudyProvider } from './context/StudyContext'
+import { ResourcesProvider } from './context/ResourcesContext'
+import { ThemeProvider } from './context/ThemeContext'
+import { CourseProvider } from './context/CourseContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <StudyProvider>
-          <App />
-        </StudyProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <CourseProvider>
+            <StudyProvider>
+              <ResourcesProvider>
+                <App />
+              </ResourcesProvider>
+            </StudyProvider>
+          </CourseProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 )

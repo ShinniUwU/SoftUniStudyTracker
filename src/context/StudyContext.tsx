@@ -4,10 +4,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
 import { initialState } from '../data/initialState'
+import { useAuth } from './AuthContext'
 import {
   type ChecklistItem,
   type ExerciseStatus,
@@ -20,6 +22,14 @@ type StudyContextValue = {
   topics: Topic[]
   checklist: ChecklistItem[]
   examDate: string
+  addTopic: (data: { title: string; description: string; exerciseCount: number }) => void
+  updateTopic: (
+    topicId: string,
+    changes: Partial<Pick<Topic, 'title' | 'description' | 'exerciseCount'>>,
+  ) => void
+  deleteTopic: (topicId: string) => void
+  addExercise: (topicId: string, title: string) => void
+  updateExerciseTitle: (topicId: string, exerciseId: string, title: string) => void
   updateExerciseStatus: (
     topicId: string,
     exerciseId: string,
@@ -33,8 +43,6 @@ type StudyContextValue = {
   overallProgress: number
 }
 
-const STORAGE_KEY = 'study-tracker-state'
-
 const StudyContext = createContext<StudyContextValue | undefined>(undefined)
 
 const createId = () => {
@@ -44,20 +52,87 @@ const createId = () => {
   return `id-${Math.random().toString(36).slice(2, 9)}`
 }
 
+const buildExercises = (count: number) => {
+  const safe = Math.max(0, Math.floor(count))
+  return Array.from({ length: safe }, (_v, idx) => {
+    const num = idx + 1
+    return { id: createId(), title: `Exercise ${num}`, status: 'not_started' as ExerciseStatus }
+  })
+}
+
+const alignExercises = (existing: Topic, nextCount: number) => {
+  const safe = Math.max(0, Math.floor(nextCount))
+  const current = existing.exercises
+  if (safe === current.length) return current
+  if (safe < current.length) {
+    return current.slice(0, safe)
+  }
+  const toAdd = safe - current.length
+  const added = Array.from({ length: toAdd }, (_v, idx) => {
+    const num = current.length + idx + 1
+    return { id: createId(), title: `Exercise ${num}`, status: 'not_started' as ExerciseStatus }
+  })
+  return [...current, ...added]
+}
+
+const legacyTopicIds = new Set([
+  'kickoff',
+  'components',
+  'state-events',
+  'lists-forms',
+  'routing',
+  'hooks',
+  'context',
+  'testing',
+  'performance',
+])
+
+const stripLegacyTopics = (state: StudyState): StudyState => {
+  if (state.topics.length === 0) return state
+  const allLegacy = state.topics.every((topic) => legacyTopicIds.has(topic.id))
+  if (allLegacy) {
+    return { ...state, topics: [] }
+  }
+  return state
+}
+
 export const StudyProvider = ({ children }: { children: ReactNode }) => {
+  const { user } = useAuth()
+  const storageKey = useMemo(
+    () => `study-tracker-progress-${user?.email ?? 'guest'}`,
+    [user?.email],
+  )
   const [state, setState] = useState<StudyState>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    const stored = localStorage.getItem(storageKey)
     if (!stored) return initialState
     try {
-      return JSON.parse(stored) as StudyState
+      return stripLegacyTopics(JSON.parse(stored) as StudyState)
     } catch {
       return initialState
     }
   })
+  const hydratedKey = useRef(storageKey)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  }, [state])
+    const stored = localStorage.getItem(storageKey)
+    if (!stored) {
+      setState(initialState)
+      hydratedKey.current = storageKey
+      return
+    }
+    try {
+      setState(stripLegacyTopics(JSON.parse(stored) as StudyState))
+    } catch {
+      setState(initialState)
+    } finally {
+      hydratedKey.current = storageKey
+    }
+  }, [storageKey])
+
+  useEffect(() => {
+    if (hydratedKey.current !== storageKey) return
+    localStorage.setItem(storageKey, JSON.stringify(state))
+  }, [state, storageKey])
 
   const updateExerciseStatus = useCallback(
     (topicId: string, exerciseId: string, status: ExerciseStatus) => {
@@ -113,6 +188,91 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     }))
   }, [])
 
+  const addTopic = useCallback((data: { title: string; description: string; exerciseCount: number }) => {
+    const exerciseCount = Math.max(0, Math.floor(data.exerciseCount))
+    const exercises = buildExercises(exerciseCount)
+    const nextTopic: Topic = {
+      id: createId(),
+      title: data.title.trim(),
+      description: data.description.trim(),
+      exerciseCount,
+      note: '',
+      exercises,
+    }
+    setState((prev) => ({
+      ...prev,
+      topics: [nextTopic, ...prev.topics],
+    }))
+  }, [])
+
+  const updateTopic = useCallback(
+    (topicId: string, changes: Partial<Pick<Topic, 'title' | 'description' | 'exerciseCount'>>) => {
+      setState((prev) => ({
+        ...prev,
+        topics: prev.topics.map((topic) => {
+          if (topic.id !== topicId) return topic
+          const nextCount =
+            typeof changes.exerciseCount === 'number' ? Math.max(0, Math.floor(changes.exerciseCount)) : topic.exerciseCount
+          const nextExercises =
+            typeof changes.exerciseCount === 'number' ? alignExercises(topic, nextCount) : topic.exercises
+          return {
+            ...topic,
+            title: changes.title?.trim() ?? topic.title,
+            description: changes.description?.trim() ?? topic.description,
+            exerciseCount: nextCount,
+            exercises: nextExercises,
+          }
+        }),
+      }))
+    },
+    [],
+  )
+
+  const deleteTopic = useCallback((topicId: string) => {
+    setState((prev) => ({
+      ...prev,
+      topics: prev.topics.filter((topic) => topic.id !== topicId),
+    }))
+  }, [])
+
+  const addExercise = useCallback((topicId: string, title: string) => {
+    const trimmed = title.trim()
+    if (!trimmed) return
+    setState((prev) => ({
+      ...prev,
+      topics: prev.topics.map((topic) =>
+        topic.id !== topicId
+          ? topic
+          : {
+              ...topic,
+              exerciseCount: topic.exercises.length + 1,
+              exercises: [
+                ...topic.exercises,
+                { id: createId(), title: trimmed, status: 'not_started' as ExerciseStatus },
+              ],
+            },
+      ),
+    }))
+  }, [])
+
+  const updateExerciseTitle = useCallback((topicId: string, exerciseId: string, title: string) => {
+    const trimmed = title.trim()
+    if (!trimmed) return
+    setState((prev) => ({
+      ...prev,
+      topics: prev.topics.map((topic) =>
+        topic.id !== topicId
+          ? topic
+          : {
+              ...topic,
+              exercises: topic.exercises.map((exercise) =>
+                exercise.id === exerciseId ? { ...exercise, title: trimmed } : exercise,
+              ),
+            },
+      ),
+    }))
+  }, [])
+
   const getTopicProgress = useCallback(
     (topicId: string) => {
       const topic = state.topics.find((t) => t.id === topicId)
@@ -139,6 +299,11 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     topics: state.topics,
     checklist: state.checklist,
     examDate: state.examDate,
+    addTopic,
+    updateTopic,
+    deleteTopic,
+    addExercise,
+    updateExerciseTitle,
     updateExerciseStatus,
     updateTopicNote,
     addChecklistItem,

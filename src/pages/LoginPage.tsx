@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useCourse } from '../context/CourseContext'
 
 export const LoginPage = () => {
   const { login, isAuthenticated } = useAuth()
+  const { courseFull } = useCourse()
   const navigate = useNavigate()
   const location = useLocation()
   const [email, setEmail] = useState('')
@@ -33,7 +35,7 @@ export const LoginPage = () => {
   return (
     <div className="auth-hero">
       <div className="login-card">
-        <p className="eyebrow">ReactJS • October 2025</p>
+        <p className="eyebrow">SoftUni • {courseFull}</p>
         <h2>Study Tracker</h2>
         <p className="muted">
           Track topic progress, exercises, and exam prep in a SoftUni-inspired UI.
